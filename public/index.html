@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+    <link rel="stylesheet" type="text/css" href="/assets/bootstrap.min.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>    
+    
+
+  </head>
+  <body>
+
+    <div id="messagebox"></div>
+    <div id="messages"></div>
+    <hr>
+    <br>
+    <button type="button" id="btn_enviar" class="btn btn-primary">ENVIA</button>
+    <br>
+    <br>
+    <input type="number" id="nr_x">
+    <button type="button" id="btn_status">status</button>
+
+    <button type="button" id="btn_box">box</button>
+
+  </body>
+</html>
+
+<script>
+    
+    var socket = io();
+    var rsm = 1;
+//    socket.emit('chat message', { id : "123" , title : "ONLINE" });
+    
+    
+    $('#btn_enviar').click(function(){
+        //e.preventDefault();
+        socket.emit('chat message', { id : rsm , title : rsm });
+        rsm++;
+        return false;
+    });
+
+
+    $('#btn_status').click(function(){
+        var nr_x = $('#nr_x').val();
+        socket.emit('mudar', { id : nr_x , title : nr_x , class : "btn btn-danger" });
+        return false;
+    });
+
+    $('#btn_box').click(function(){
+        var nr_x = $('#nr_x').val();
+        socket.emit('notificacao', { id : nr_x , title : 'Titulo' , class : "btn btn-danger" });
+        return false;
+    });
+
+
+    socket.on('chat message', function(msg){
+      $('#messages').append('<label style="padding:3px;"><div id="'+msg.id+'" class="btn btn-primary" style="padding:15px;">'+msg.title+'</div></label>' );
+    });
+
+    socket.on('notificacao', function (data) {
+      //document.getElementById('messagebox').innerHTML = data;
+      notify(data.id,data.title)
+    });
+
+    socket.on('status', function(msg){
+      
+      $('#'+msg.id).removeAttr('class');
+      $('#'+msg.id).text(msg.title);
+      $('#'+msg.id).addClass(msg.class);
+      
+    });
+
+    function notify(nome,mensagem) {
+      Notification.requestPermission(function() {
+          var notification = new Notification(nome, {
+              icon: 'ICONE DA SUA APLICAÇÃO',
+              body: mensagem
+          });
+          notification.onclick = function() {
+              //SUA LÓGICA AQUI
+              console.log('');
+          }
+      });
+    }
+
+    </script>
